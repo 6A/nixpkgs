@@ -34,7 +34,7 @@ in
     programs.ssh = {
 
       askPassword = mkOption {
-        type = types.str;
+        type = types.nullOr types.str;
         default = "${pkgs.x11_ssh_askpass}/libexec/x11-ssh-askpass";
         description = ''Program used by SSH to ask for passwords.'';
       };
@@ -237,7 +237,7 @@ in
         # Allow ssh-agent to ask for confirmation. This requires the
         # unit to know about the user's $DISPLAY (via ‘systemctl
         # import-environment’).
-        environment.SSH_ASKPASS = optionalString config.services.xserver.enable askPasswordWrapper;
+        environment.SSH_ASKPASS = optionalString (config.services.xserver.enable && askPassword != null) askPasswordWrapper;
         environment.DISPLAY = "fake"; # required to make ssh-agent start $SSH_ASKPASS
       };
 
@@ -248,7 +248,7 @@ in
         fi
       '';
 
-    environment.variables.SSH_ASKPASS = optionalString config.services.xserver.enable askPassword;
+    environment.variables.SSH_ASKPASS = optionalString (config.services.xserver.enable && askPassword != null) askPassword;
 
   };
 }
